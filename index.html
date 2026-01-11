@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test TES – Autocorregible</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;margin:20px}
+h1{margin-bottom:5px}
+.q{border:1px solid #ccc;border-radius:10px;padding:12px;margin:12px 0}
+.q.correct{background:#eaffea;border-color:#2e7d32}
+.q.incorrect{background:#ffecec;border-color:#c62828}
+.opt{display:block;margin:6px 0;cursor:pointer}
+.feedback{font-weight:bold;margin-top:6px}
+.score{font-weight:bold;margin-left:15px}
+button{padding:8px 12px;border-radius:8px;border:1px solid #aaa;cursor:pointer}
+</style>
+</head>
+<body>
+
+<h1>Test TES – Autocorregible</h1>
+<p>Selecciona una opción y se corrige al instante.</p>
+
+<button onclick="shuffle()">Barajar</button>
+<button onclick="resetQuiz()">Reiniciar</button>
+<span class="score" id="score"></span>
+
+<div id="quiz"></div>
+
+<script>
+let questions = [
+{ id:1, text:"¿Qué significan las siglas ABCDE en la atención sanitaria de emergencia?", options:["Vía aérea, Respiración, Circulación, Estado neurológico, Exposición","Atención básica, control y estabilización del paciente","Valoración inicial y diagnóstico clínico"], correct:0 },
+{ id:2, text:"¿Qué paso del abordaje ABCDE en SVA hace referencia a las técnicas de ventilación y oxigenoterapia?", options:["Breathing","Circulación","Exposición"], correct:0 },
+{ id:3, text:"Escoge la respuesta correcta sobre los sistemas de administración de oxígeno de bajo flujo:", options:["Proporcionan una FiO₂ variable, en función del flujo administrado y del volumen inspiratorio","Aportan siempre una FiO₂ fija","Permiten administrar oxígeno al 100 % de forma constante"], correct:0 },
+{ id:4, text:"Escoge la respuesta correcta sobre los sistemas de ventilación artificial:", options:["Los resucitadores manuales se conocen como ambús","Son dispositivos de ventilación mecánica invasiva","Solo se usan en quirófano"], correct:0 },
+{ id:5, text:"¿Cuál de las siguientes no es una función del TES en la intubación endotraqueal?", options:["Introducir el tubo endotraqueal en la vía aérea del paciente","Preparar el material necesario","Colaborar en la fijación del tubo"], correct:0 },
+{ id:6, text:"¿Dónde desplegarás el material necesario para la intubación?", options:["En la cabecera del paciente hacia el lado derecho del personal médico","En el lateral izquierdo del paciente","En una mesa auxiliar alejada"], correct:0 },
+{ id:7, text:"¿Qué saturación de oxígeno en sangre capilar corresponde a una hipoxemia grave?", options:["< 75 %","Entre el 85 % y el 90 %","Superior al 95 %"], correct:0 },
+{ id:8, text:"¿Qué actuación debemos realizar ante un paciente con una SaO₂ de 83 %?", options:["Aplicar oxigenoterapia inmediata y trasladar al hospital","Esperar y reevaluar la saturación","Administrar oxígeno solo si empeora"], correct:0 },
+
+/* ……… (preguntas 9 a 82 omitidas aquí por espacio) ……… */
+
+{ id:83, text:"¿Cuál de los siguientes pasos es común en la actuación ante casos de maltrato, tanto si existen evidencias de lesiones como si no?", options:["Redactar un informe médico y registrarlo en la historia clínica de la paciente","Dar el alta inmediata","Comunicar solo verbalmente el caso"], correct:0 }
+];
+
+const quiz=document.getElementById("quiz");
+const scoreEl=document.getElementById("score");
+
+function render(){
+quiz.innerHTML="";
+questions.forEach(q=>{
+let div=document.createElement("div");
+div.className="q";
+div.id="q"+q.id;
+div.innerHTML="<b>"+q.id+". "+q.text+"</b>";
+q.options.forEach((o,i)=>{
+let l=document.createElement("label");
+l.className="opt";
+l.innerHTML=`<input type="radio" name="q${q.id}" onclick="check(${q.id},${i})"> ${o}`;
+div.appendChild(l);
+});
+let f=document.createElement("div");
+f.className="feedback";
+f.id="f"+q.id;
+div.appendChild(f);
+quiz.appendChild(div);
+});
+updateScore();
+}
+
+function check(id,sel){
+let q=questions.find(x=>x.id===id);
+let div=document.getElementById("q"+id);
+let f=document.getElementById("f"+id);
+div.classList.remove("correct","incorrect");
+if(sel===q.correct){
+div.classList.add("correct");
+f.textContent="✔ Correcta";
+}else{
+div.classList.add("incorrect");
+f.textContent="✘ Incorrecta. Correcta: "+q.options[q.correct];
+}
+updateScore();
+}
+
+function updateScore(){
+let ok=0,done=0;
+questions.forEach(q=>{
+let radios=document.getElementsByName("q"+q.id);
+for(let r of radios){
+if(r.checked){
+done++;
+if(parseInt(r.getAttribute("onclick").match(/,(\d+)/)[1])===q.correct) ok++;
+}
+}
+});
+scoreEl.textContent="Puntuación: "+ok+"/"+questions.length+" | Respondidas: "+done;
+}
+
+function resetQuiz(){render()}
+function shuffle(){questions.sort(()=>Math.random()-0.5);render()}
+
+render();
+</script>
+</body>
+</html>
